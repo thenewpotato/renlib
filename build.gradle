@@ -1,0 +1,17 @@
+group 'thenewpotato.renlib'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile 'org.apache.httpcomponents:httpclient:4.5.3'
+    compile 'org.jsoup:jsoup:1.10.3'
+    compile 'joda-time:joda-time:2.9.9'
+}
