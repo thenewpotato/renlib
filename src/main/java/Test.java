@@ -14,7 +14,7 @@ public class Test {
         for (Course course : schedule.get(Schedule.FRIDAY)) {
             System.out.println("In " + course.location + " for " + course.name + " at " + course.startTime + "-" + course.endTime);
         }
-        
+
         // grade book
 
         // homework
