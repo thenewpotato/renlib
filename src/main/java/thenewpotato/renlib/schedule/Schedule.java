@@ -1,14 +1,15 @@
+package thenewpotato.renlib.schedule;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.util.EntityUtils;
-import org.joda.time.DateTime;
-import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import thenewpotato.renlib.Credentials;
 
 import java.util.ArrayList;
 
@@ -71,7 +72,7 @@ public class Schedule {
                 "body > table:nth-child(2) > tbody:nth-child(2) > tr");
         for (int i = 2; i < courseEntries.size() - 1; i++) {
             Elements courseSects = courseEntries.get(i).select("td");
-            // empty Course index holder
+            // empty thenewpotato.renlib.schedule.Course index holder
             courseListings.add(new Course());
             for (int l = 0; l < courseSects.size(); l++) {
                 switch (l) {
@@ -106,11 +107,11 @@ public class Schedule {
     }
 
     /**
-     * gets a list of Course objects for the specific day of the week. *Currently does not support schedules
+     * gets a list of thenewpotato.renlib.schedule.Course objects for the specific day of the week. *Currently does not support schedules
      * containing Saturday and Sunday events
      *
      * @param dayOfWeek constant variables Monday through Friday*
-     * @return ArrayList of Course objects of the specified day of the week
+     * @return ArrayList of thenewpotato.renlib.schedule.Course objects of the specified day of the week
      */
     public ArrayList<Course> get(int dayOfWeek) {
         ArrayList<Course> result = new ArrayList<>();
@@ -145,8 +146,6 @@ public class Schedule {
                         times[1] = "0" + times[1];
                     }
                     times[1] = times[1] + aa;
-
-                    System.out.println(times[0] + " " + times[1]);
                     result.get(result.size() - 1).startTime = formatter.parseLocalTime(times[0]);
                     result.get(result.size() - 1).endTime = formatter.parseLocalTime(times[1]);
                 } else {
