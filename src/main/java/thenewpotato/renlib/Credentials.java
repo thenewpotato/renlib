@@ -1,3 +1,5 @@
+package thenewpotato.renlib;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.CookieStore;
@@ -11,12 +13,15 @@ import org.apache.http.impl.client.LaxRedirectStrategy;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.RequestUserAgent;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Credentials {
+
+    public static String tempPassword = "20020320hua";
 
     public HttpClient httpClient;
     public HttpContext httpContext;
