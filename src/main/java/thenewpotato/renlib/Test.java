@@ -122,8 +122,8 @@ public class Test {
 
         Credentials credentials = new Credentials(
                 "TWS-TN",
-                "username",
-                "password",
+                "thenewpotato",
+                "***REMOVED***",
                 "PARENTSWEB-STUDENT");
 
         /*//gradebook
