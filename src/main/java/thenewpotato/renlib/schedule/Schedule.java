@@ -3,6 +3,7 @@ package thenewpotato.renlib.schedule;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.util.EntityUtils;
+import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.jsoup.Jsoup;
@@ -12,6 +13,7 @@ import org.jsoup.select.Elements;
 import thenewpotato.renlib.Credentials;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Schedule {
 
@@ -28,8 +30,8 @@ public class Schedule {
 
     private Document scheduleDocument = null;
     private ArrayList<Course> courseListings;
-    private DateTimeFormatter formatter = DateTimeFormat.forPattern("hh:mm a");
-    
+    private DateTimeFormatter renwebTimeFormatter = DateTimeFormat.forPattern("hh:mm a");
+
     public Schedule(Credentials credentials) {
         // get schedule directory page
         HttpGet httpGet = new HttpGet("https://tws-tn.client.renweb.com/pw/student/schedules.cfm");
@@ -107,6 +109,36 @@ public class Schedule {
     }
 
     /**
+     * Processes String time in the RenWeb format to two LocalTime values. This method uses a global String aa
+     * to determine the time of day; reset aa to " AM" every time for each "day" (done automatically now).
+     * @param in Format: "hh:mm-hh:mm" in 12 hr formats, hh also abbreviated to h if possible
+     * @return LocalTime[startTime, endTime]
+     */
+    private static String aa = " AM";
+    private LocalTime[] processTime(String in) {
+        String[] times = in.split("-");
+
+        if (times[0].split(":")[0].equals("12")) {
+            aa = " PM";
+        }
+        // checks if hour contains 2 chars, it needs 2 chars to be properly parsed
+        if (times[0].length() == 7) {
+            times[0] = "0" + times[0];
+        }
+        times[0] = times[0] + aa;
+
+        if (times[1].split(":")[0].equals("12")) {
+            aa = " PM";
+        }
+        // checks if hour contains 2 chars, it needs 2 chars to be properly parsed
+        if (times[1].length() == 7) {
+            times[1] = "0" + times[1];
+        }
+        times[1] = times[1] + aa;
+        return new LocalTime[]{renwebTimeFormatter.parseLocalTime(times[0]), renwebTimeFormatter.parseLocalTime(times[1])};
+    }
+
+    /**
      * gets a list of thenewpotato.renlib.schedule.Course objects for the specific day of the week. *Currently does not support schedules
      * containing Saturday and Sunday events
      *
@@ -114,12 +146,40 @@ public class Schedule {
      * @return ArrayList of thenewpotato.renlib.schedule.Course objects of the specified day of the week
      */
     public ArrayList<Course> get(int dayOfWeek) {
+        aa = " AM";
         ArrayList<Course> result = new ArrayList<>();
         Elements scheduleEntries = scheduleDocument.select(
                 "#AutoNumber2 > tbody:nth-child(1) > tr");
-        String aa = " AM";
         for (int a = 1; a < scheduleEntries.size(); a++) {
             Element entry = scheduleEntries.get(a).select("td:nth-child(" + dayOfWeek + ")").first();
+            switch (a % 3) {
+                case 0:
+                    // location block
+                    break;
+                case 1:
+                    // name block
+                    // a block without a name still counts as an empty block of time
+                    if (entry.text().equals("")) {
+                        result.add(new Course());
+                    } else {
+                        result.add(getCourseByCode(entry.text()));
+                    }
+                    break;
+                case 2:
+                    // time block
+                    // if the time block is empty, then the previously added empty Course entry is invalid, thus delete
+                    if (entry.text().equals("")) {
+                        result.remove(result.size() - 1);
+                    } else {
+                        LocalTime[] times = processTime(entry.text());
+                        result.get(result.size() - 1).startTime =
+                                times[0];
+                        result.get(result.size() - 1).endTime =
+                                times[1];
+                    }
+                    break;
+            }
+            /*
             String entryText = entry.text();
             if (!entryText.equals("")) {
                 if(a % 3 == 0) {
@@ -157,6 +217,7 @@ public class Schedule {
                 // removal results in time misassignment on blocks before one without a code name but has a time
                 a+=2;
             }
+            */
         }
         return result;
     }

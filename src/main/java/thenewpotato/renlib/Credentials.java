@@ -21,8 +21,6 @@ import java.util.List;
 
 public class Credentials {
 
-    public static String tempPassword = "20020320hua";
-
     public HttpClient httpClient;
     public HttpContext httpContext;
 
